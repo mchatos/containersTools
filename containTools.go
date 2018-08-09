@@ -1,72 +1,59 @@
+//containtools.go
 package main
 
 import (
-    "fmt"
-    "time"
-    "math/rand"
-    "os"
+	"fmt"
+	"math/rand"
+	"time"
+	"os"
+	"containtools/osinfos"
 )
 
-// Os Functions
-func fOSinfos(){
-
-  fmt.Println("OS Host Detection and informations : ")
-  hostname, hostnameError := os.Hostname()
-  osWin, osBool := os.LookupEnv("OS")
-
-  fmt.Printf("PID : %v, PPID : %v\n", os.Getpid(), os.Getppid())
-
-  if hostnameError != nil {panic(hostnameError)}
-  fmt.Println("Hostname : ", hostname)
-
-  if osBool == false {
-      fmt.Println("OS Linux")
-      fmt.Printf("User %s lives in %s with UID %v and GID %v.\n", os.Getenv("USER"), os.Getenv("HOME"), os.Geteuid(), os.Getgid())
-      fmt.Printf("Hostname %s.\n", os.Getenv("HOSTNAME"))
-    } else {
-      fmt.Println("OS ", osWin)
-      fmt.Printf("User %s lives in %s.\n", os.Getenv("USERNAME"), os.Getenv("HOMEPATH"))
-  }
- fmt.Println(" ")
-}
-
 // Fonction sleep
-func fSleep(i int){
+func fSleep(i int) {
 
-  fmt.Println("So tired... i will sleep for ", i, " seconds...")
-  for j := 1; j <= i; j++ {
-      time.Sleep(1 * time.Second)
-  }
+	fmt.Println("So tired... i will sleep for ", i, " seconds...")
+	for j := 1; j <= i; j++ {
+		time.Sleep(1 * time.Second)
+	}
 }
 
 func fWaiTime() int {
 
-  s1 := rand.NewSource(time.Now().UnixNano())
-  r1 := rand.New(s1)
-  var w = (r1.Intn(100))
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+	var w = (r1.Intn(100))
 
-  return w
+	return w
 }
 
 func main() {
+	
+	siesta := 0
+	loop := 0
+	avg := 0
+	var tab [100]int
+	
+	fmt.Println("")
+	osinfos.OSinfos()
 
-  siesta := 0
-  loop := 0
+	// infinite loop
+	for {
+		sleepTime := fWaiTime()
+		tab[loop] = sleepTime
+		loop++
+		
+		if ( sleepTime >= 90 || loop == 100 ) {
+			fmt.Printf("Siesta finished after %v Seconds, with %v micro sleeps generated \n", (siesta), (loop) )
+			avg=((siesta)/(loop-1))
+			fmt.Printf(" %v seconds micro sleeps average (%v loops) \n", avg, (loop-1) )
+			for h := 0; h < loop; h++ { fmt.Printf(" %d ", tab[h]) }
+			fmt.Println("")
+			os.Exit(1)
+		}
 
-  fmt.Println(" ")
-  fOSinfos()
+		siesta = siesta + sleepTime
+		fSleep(sleepTime)
 
-  // infinite loop
-  for {
-      sleepTime := fWaiTime()
-      if sleepTime >= 90 {
-        fmt.Printf("Siesta finished after %v Seconds, with %v micro sleeps generated ", siesta, loop)
-        os.Exit(1)
-      }
-
-    siesta = siesta + sleepTime
-    loop++
-    fSleep(sleepTime)
-
-  }
+	}
 }
